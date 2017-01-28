@@ -1,16 +1,20 @@
 <?php
 
-namespace Abacaphiliac\Zend\Transformer;
+namespace Abacaphiliac\Zend\Transformer\Factory;
 
+use Abacaphiliac\Zend\Transformer\Config\TransformerConfig;
+use Abacaphiliac\Zend\Transformer\Transformer;
 use Assert\Assertion;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Zend\Hydrator\ClassMethods;
 use Zend\Hydrator\ExtractionInterface;
 use Zend\Hydrator\HydrationInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
 use Zend\ServiceManager\Factory\AbstractFactoryInterface;
+use Zend\Validator\IsInstanceOf;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
 
@@ -44,13 +48,17 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $config = $this->getTransformerConfig($container, $requestedName);
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
+        }
+        
+        $config = new TransformerConfig($this->getTransformerConfig($container, $requestedName));
     
-        $inputValidator = $this->getValidator($container, $config->getInputValidator());
+        $inputValidator = $this->getValidator($container, $config->getInputValidator(), $config->getInputClass());
         $extractor = $this->getExtractor($container, $config->getExtractor());
         $transformer = $this->getTransformer($container, $config);
         $hydrator = $this->getHydrator($container, $config->getHydrator());
-        $outputValidator = $this->getValidator($container, $config->getOutputValidator());
+        $outputValidator = $this->getValidator($container, $config->getOutputValidator(), $config->getOutputClass());
         
         return new Transformer(
             $inputValidator,
@@ -64,36 +72,41 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     /**
      * @param ContainerInterface $container
      * @param string $requestedName
-     * @return TransformerConfig
+     * @return mixed[]
      * @throws \Interop\Container\Exception\ContainerException
      */
     private function getTransformerConfig(ContainerInterface $container, $requestedName)
     {
-        $config = $container->get('config');
+        $applicationConfig = $container->get('config');
     
-        return new TransformerConfig(\igorw\get_in(
-            $config,
-            ['abacaphiliac/zend-transformer', 'transformers', $requestedName],
-            []
-        ));
+        return \igorw\get_in($applicationConfig, ['abacaphiliac/zend-transformer', 'transformers', $requestedName]);
     }
     
     /**
      * @param ContainerInterface $container
      * @param string $service
+     * @param string $validateIsInstanceOf
      * @return ValidatorInterface
      * @throws \Interop\Container\Exception\NotFoundException
      * @throws \Interop\Container\Exception\ContainerException
      * @throws \Assert\AssertionFailedException
+     * @throws \Zend\Validator\Exception\InvalidArgumentException
+     * @internal param TransformerConfig $config
      */
-    private function getValidator(ContainerInterface $container, $service)
+    private function getValidator(ContainerInterface $container, $service, $validateIsInstanceOf = null)
     {
         if ($service instanceof ValidatorInterface) {
             return $service;
         }
         
         if ($service === null) {
-            return new ValidatorChain();
+            $validator = new ValidatorChain();
+            
+            if ($validateIsInstanceOf) {
+                $validator->attach(new IsInstanceOf(['className' => $validateIsInstanceOf]));
+            }
+            
+            return $validator;
         }
         
         $validator = $this->getService($container, $service, 'ValidatorManager');
@@ -189,7 +202,8 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
         if (is_callable($transformer)) {
             return $transformer;
         }
-        
+    
+        $transformer = $config->getKeyMap();
         if (is_array($transformer)) {
             return function (array $data) use ($transformer) {
                 $result = [];

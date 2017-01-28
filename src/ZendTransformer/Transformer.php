@@ -10,7 +10,6 @@ use Zend\Hydrator\ExtractionInterface;
 use Zend\Hydrator\HydrationInterface;
 use Zend\Validator\ValidatorInterface;
 
-// TODO Abstract? Spec-Based? Config-Based?
 class Transformer implements TransformerInterface
 {
     /** @var ValidatorInterface */
@@ -51,9 +50,9 @@ class Transformer implements TransformerInterface
     }
     
     /**
-     * @param Object $input
-     * @param Object $output
-     * @return Object
+     * @param object $input
+     * @param object $output
+     * @return object
      * @throws \Abacaphiliac\Zend\Transformer\Exception\ExceptionInterface
      */
     public function transform($input, $output)
@@ -74,7 +73,7 @@ class Transformer implements TransformerInterface
     }
     
     /**
-     * @param Object|string $output
+     * @param object|string $output
      * @return bool
      * @throws \Abacaphiliac\Zend\Transformer\Exception\ValidationException
      */
@@ -96,7 +95,7 @@ class Transformer implements TransformerInterface
     }
     
     /**
-     * @param Object $object
+     * @param object $object
      * @param ValidatorInterface $validator
      * @return bool
      * @throws \Abacaphiliac\Zend\Transformer\Exception\ValidationException
@@ -114,14 +113,14 @@ class Transformer implements TransformerInterface
         }
     
         if (!$isInputValid) {
-            throw new ValidationException('Transformation input failed validation.', 0); // TODO Describe input.
+            throw new ValidationException('Validation failed: ' . json_encode($validator->getMessages(), 0));
         }
         
         return true;
     }
     
     /**
-     * @param Object $object
+     * @param object $object
      * @return mixed[]
      * @throws \Abacaphiliac\Zend\Transformer\Exception\ExtractionException
      */
@@ -158,8 +157,8 @@ class Transformer implements TransformerInterface
     
     /**
      * @param mixed[] $data
-     * @param Object $object
-     * @return Object
+     * @param object $object
+     * @return object
      * @throws \Abacaphiliac\Zend\Transformer\Exception\HydrationException
      */
     private function hydrate(array $data, $object)

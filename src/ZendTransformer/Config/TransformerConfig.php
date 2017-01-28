@@ -1,25 +1,51 @@
 <?php
 
-namespace Abacaphiliac\Zend\Transformer;
+namespace Abacaphiliac\Zend\Transformer\Config;
 
 use Zend\Stdlib\AbstractOptions;
 
 class TransformerConfig extends AbstractOptions
 {
     /** @var string|null */
+    private $inputClass;
+    
+    /** @var string|null */
     private $inputValidator;
     
     /** @var string|null */
     private $extractor;
     
-    /** @var string|mixed[]|null */
+    /** @var mixed[]|null */
+    private $keyMap;
+    
+    /** @var string|null */
     private $transformer;
     
     /** @var string|null */
     private $hydrator;
     
     /** @var string|null */
+    private $outputClass;
+    
+    /** @var string|null */
     private $outputValidator;
+    
+    /**
+     * @return null|string
+     */
+    public function getInputClass()
+    {
+        return $this->inputClass;
+    }
+    
+    /**
+     * @param null|string $inputClass
+     * @return void
+     */
+    public function setInputClass($inputClass)
+    {
+        $this->inputClass = $inputClass;
+    }
     
     /**
      * @return null|string
@@ -56,7 +82,24 @@ class TransformerConfig extends AbstractOptions
     }
     
     /**
-     * @return \mixed[]|null|string
+     * @return \mixed[]|null
+     */
+    public function getKeyMap()
+    {
+        return $this->keyMap;
+    }
+    
+    /**
+     * @param \mixed[]|null $keyMap
+     * @return void
+     */
+    public function setKeyMap($keyMap)
+    {
+        $this->keyMap = $keyMap;
+    }
+    
+    /**
+     * @return null|string
      */
     public function getTransformer()
     {
@@ -64,7 +107,7 @@ class TransformerConfig extends AbstractOptions
     }
     
     /**
-     * @param \mixed[]|null|string $transformer
+     * @param null|string $transformer
      * @return void
      */
     public function setTransformer($transformer)
@@ -87,6 +130,23 @@ class TransformerConfig extends AbstractOptions
     public function setHydrator($hydrator)
     {
         $this->hydrator = $hydrator;
+    }
+    
+    /**
+     * @return null|string
+     */
+    public function getOutputClass()
+    {
+        return $this->outputClass;
+    }
+    
+    /**
+     * @param null|string $outputClass
+     * @return void
+     */
+    public function setOutputClass($outputClass)
+    {
+        $this->outputClass = $outputClass;
     }
     
     /**

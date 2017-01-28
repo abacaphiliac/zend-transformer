@@ -2,8 +2,8 @@
 
 return [
     'service_manager' => [
-        'abstract_factories' => [
-            \Abacaphiliac\Zend\Transformer\AbstractTransformerFactory::class,
+        'factories' => [
+            'TransformerManager' => \Abacaphiliac\Zend\Transformer\PluginManager\TransformerPluginManagerFactory::class,
         ],
     ],
     'abacaphiliac/zend-transformer' => [

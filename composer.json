@@ -15,9 +15,21 @@
         "zendframework/zend-servicemanager": "^3.2",
         "igorw/get-in": "^1.0",
         "beberlei/assert": "^2.7",
-        "zendframework/zend-modulemanager": "^2.7"
+        "zendframework/zend-modulemanager": "^2.7",
+        "zendframework/zend-mvc": "^3.0",
+        "zendframework/zend-filter": "^2.7"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Abacaphiliac\\Zend\\Transformer\\": "src/ZendTransformer"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AbacaphiliacTest\\": "tests/ZendTransformer"
+        }
     }
 }
