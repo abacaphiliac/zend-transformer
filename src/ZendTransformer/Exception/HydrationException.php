@@ -2,7 +2,7 @@
 
 namespace Abacaphiliac\Zend\Transformer\Exception;
 
-class ExtractionException extends \RuntimeException implements ExceptionInterface
+class HydrationException extends \RuntimeException implements ExceptionInterface
 {
     
 }

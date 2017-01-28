@@ -1,0 +1,19 @@
+{
+    "name": "abacaphiliac/zend-transformer",
+    "description": "Extract and Hydrate, plus secret sauce.",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Timothy Younger",
+            "email": "abacaphiliac@gmail.com"
+        }
+    ],
+    "require": {
+        "zendframework/zend-hydrator": "^2.2",
+        "zendframework/zend-validator": "^2.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7"
+    }
+}

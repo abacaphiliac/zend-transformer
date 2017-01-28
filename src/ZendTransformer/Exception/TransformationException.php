@@ -2,7 +2,7 @@
 
 namespace Abacaphiliac\Zend\Transformer\Exception;
 
-class ValidationException extends \RuntimeException implements ExceptionInterface
+class TransformationException extends \RuntimeException implements ExceptionInterface
 {
     
 }
