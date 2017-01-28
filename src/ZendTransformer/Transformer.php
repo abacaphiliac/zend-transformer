@@ -74,7 +74,7 @@ class Transformer implements TransformerInterface
     }
     
     /**
-     * @param Object $output
+     * @param Object|string $output
      * @return bool
      * @throws \Abacaphiliac\Zend\Transformer\Exception\ValidationException
      */
