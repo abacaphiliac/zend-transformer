@@ -31,11 +31,19 @@
     </target>
     
     <target name="unit-tests">
-        <exec command="vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover"
+        <exec command="vendor/bin/phpunit --coverage-text"
             passthru="true"
             output="/dev/stdout"
             error="/dev/stdout"
             checkreturn="true"/>
+    </target>
+
+    <target name="mutation-tests">
+        <exec command="vendor/bin/humbug"
+              passthru="true"
+              output="/dev/stdout"
+              error="/dev/stdout"
+              checkreturn="true"/>
     </target>
     
 </project>

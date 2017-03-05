@@ -72,9 +72,9 @@ class Transformer implements TransformerInterface
         
             $this->validateObject($output, $this->outputValidator);
         } catch (AssertionFailedException $e) {
-            throw new TransformationException('Transformation failed.', 0, $e);
+            throw new TransformationException('Transformation failed.', null, $e);
         } catch (\Exception $e) {
-            throw new TransformationException('Transformation failed.', 0, $e);
+            throw new TransformationException('Transformation failed.', null, $e);
         }
         
         return $output;
@@ -83,7 +83,7 @@ class Transformer implements TransformerInterface
     /**
      * @param mixed $object
      * @param ValidatorInterface $validator
-     * @return bool
+     * @return void
      * @throws \Zend\Validator\Exception\RuntimeException
      * @throws AssertionFailedException
      */
@@ -94,8 +94,6 @@ class Transformer implements TransformerInterface
         $isValid = $validator->isValid($object);
     
         Assertion::true($isValid, 'Validation failed: ' . json_encode($validator->getMessages()));
-        
-        return true;
     }
     
     /**
