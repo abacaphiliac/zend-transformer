@@ -5,18 +5,19 @@ namespace Abacaphiliac\Zend\Transformer\PluginManager;
 use Abacaphiliac\Zend\Transformer\Factory\AbstractTransformerFactory;
 use Abacaphiliac\Zend\Transformer\TransformerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ConfigInterface;
 use Zend\ServiceManager\Exception;
 
 class TransformerPluginManager extends AbstractPluginManager
 {
     /**
      * TransformerPluginManager constructor.
-     * @param ConfigInterface $configuration
+     * @param mixed $configOrContainerInstance
+     * @param array $v3config
+     * @throws \Zend\ServiceManager\Exception\InvalidArgumentException
      */
-    public function __construct(ConfigInterface $configuration = null)
+    public function __construct($configOrContainerInstance = null, array $v3config = [])
     {
-        parent::__construct($configuration);
+        parent::__construct($configOrContainerInstance, $v3config);
         
         $this->abstractFactories[] = new AbstractTransformerFactory();
     }
