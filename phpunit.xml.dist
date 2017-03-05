@@ -1,0 +1,16 @@
+<phpunit bootstrap="vendor/autoload.php"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutOutputDuringTests="true"
+         disallowChangesToGlobalState="true"
+         verbose="true">
+    <testsuites>
+        <testsuite name="abacaphiliac/zend-transformer">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+</phpunit>

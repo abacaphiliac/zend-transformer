@@ -1,0 +1,39 @@
+{
+    "name": "abacaphiliac/zend-transformer",
+    "description": "Extract and Hydrate, plus secret sauce.",
+    "minimum-stability": "stable",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Timothy Younger",
+            "email": "abacaphiliac@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5",
+        "zendframework/zend-filter": "^2.0",
+        "zendframework/zend-hydrator": "^2.0",
+        "zendframework/zend-modulemanager": "^2.0",
+        "zendframework/zend-mvc": "^2.0",
+        "zendframework/zend-servicemanager": "^2.0",
+        "zendframework/zend-validator": "^2.0",
+        "igorw/get-in": "^1.0",
+        "beberlei/assert": "^2.6"
+    },
+    "require-dev": {
+        "phing/phing": "^2.15",
+        "jakub-onderka/php-parallel-lint": "^0.9",
+        "squizlabs/php_codesniffer": "^2.8",
+        "phpunit/phpunit": "^5.7|^4.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Abacaphiliac\\Zend\\Transformer\\": "src/ZendTransformer"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AbacaphiliacTest\\": "tests/ZendTransformer"
+        }
+    }
+}
