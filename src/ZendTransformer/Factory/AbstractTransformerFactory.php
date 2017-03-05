@@ -10,6 +10,7 @@ use Interop\Container\Exception\ContainerException;
 use Zend\Hydrator\ClassMethods;
 use Zend\Hydrator\ExtractionInterface;
 use Zend\Hydrator\HydrationInterface;
+use Zend\Hydrator\HydratorPluginManager;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 use Zend\ServiceManager\Exception\ServiceNotFoundException;
@@ -17,9 +18,15 @@ use Zend\ServiceManager\Factory\AbstractFactoryInterface;
 use Zend\Validator\IsInstanceOf;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
+use Zend\Validator\ValidatorPluginManager;
 
 class AbstractTransformerFactory implements AbstractFactoryInterface
 {
+    private static $pluginManagers = [
+        'HydratorManager' => HydratorPluginManager::class,
+        'ValidatorManager' => ValidatorPluginManager::class,
+    ];
+    
     /**
      * Can the factory create an instance for the service?
      *
@@ -40,6 +47,7 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
      * @param  string $requestedName
      * @param  null|array $options
      * @return Transformer
+     * @throws \Zend\Validator\Exception\InvalidArgumentException
      * @throws \Interop\Container\Exception\NotFoundException
      * @throws \Assert\AssertionFailedException
      * @throws ServiceNotFoundException if unable to resolve the service.
@@ -177,16 +185,24 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
      */
     private function getService(ContainerInterface $container, $service, $pluginManagerName)
     {
+        $plugins = null;
+        
         if ($container->has($pluginManagerName)) {
-            $validators = $container->get($pluginManagerName);
-            Assertion::isInstanceOf($validators, ContainerInterface::class);
-            
-            /** @var ContainerInterface $validators */
-            if ($validators->has($service)) {
-                return $validators->get($service);
-            }
+            // Get the named plugin-manager from parent container.
+            $plugins = $container->get($pluginManagerName);
+            Assertion::isInstanceOf($plugins, ContainerInterface::class);
+        } else if (isset(self::$pluginManagers[$pluginManagerName])) {
+            // Create a new plugin-manager.
+            $plugins = new self::$pluginManagers[$pluginManagerName]($container);
+            Assertion::isInstanceOf($plugins, ContainerInterface::class);
+        }
+        
+        if ($plugins instanceof ContainerInterface && $plugins->has($service)) {
+            // Get the service/plugin from the plugin-manager.
+            return $plugins->get($service);
         }
     
+        // Fall-back to parent container for service since it could not be provided by a plugin-manager.
         return $container->get($service);
     }
     
@@ -203,12 +219,12 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
             return $transformer;
         }
     
-        $transformer = $config->getKeyMap();
-        if (is_array($transformer)) {
-            return function (array $data) use ($transformer) {
+        $keyMap = $config->getKeyMap();
+        if (is_array($keyMap)) {
+            return function (array $data) use ($keyMap) {
                 $result = [];
                 foreach ($data as $key => $value) {
-                    $result[\igorw\get_in($transformer, [$key], $key)] = $value;
+                    $result[\igorw\get_in($keyMap, [$key], $key)] = $value;
                 }
                 
                 return $result;

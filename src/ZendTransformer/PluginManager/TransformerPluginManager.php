@@ -17,7 +17,7 @@ class TransformerPluginManager extends AbstractPluginManager
     {
         parent::__construct($configInstanceOrParentLocator, $config);
         
-        $this->abstractFactories[] = AbstractTransformerFactory::class;
+        $this->abstractFactories[] = new AbstractTransformerFactory();
         $this->instanceOf = TransformerInterface::class;
     }
 }

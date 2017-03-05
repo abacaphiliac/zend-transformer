@@ -2,32 +2,36 @@
 
 namespace Abacaphiliac\Zend\Transformer\Config;
 
+use Abacaphiliac\Zend\Transformer\TransformerInterface;
+use Zend\Hydrator\ExtractionInterface;
+use Zend\Hydrator\HydrationInterface;
 use Zend\Stdlib\AbstractOptions;
+use Zend\Validator\ValidatorInterface;
 
 class TransformerConfig extends AbstractOptions
 {
     /** @var string|null */
     private $inputClass;
     
-    /** @var string|null */
+    /** @var ValidatorInterface|string|null */
     private $inputValidator;
     
-    /** @var string|null */
+    /** @var ExtractionInterface|string|null */
     private $extractor;
     
     /** @var mixed[]|null */
     private $keyMap;
     
-    /** @var string|null */
+    /** @var TransformerInterface|callable|string|null */
     private $transformer;
     
-    /** @var string|null */
+    /** @var HydrationInterface|string|null */
     private $hydrator;
     
     /** @var string|null */
     private $outputClass;
     
-    /** @var string|null */
+    /** @var ValidatorInterface|string|null */
     private $outputValidator;
     
     /**

@@ -2,10 +2,9 @@
 
 namespace Abacaphiliac\Zend\Transformer;
 
-use Abacaphiliac\Zend\Transformer\Exception\ExtractionException;
-use Abacaphiliac\Zend\Transformer\Exception\HydrationException;
 use Abacaphiliac\Zend\Transformer\Exception\TransformationException;
-use Abacaphiliac\Zend\Transformer\Exception\ValidationException;
+use Assert\Assertion;
+use Assert\AssertionFailedException;
 use Zend\Hydrator\ExtractionInterface;
 use Zend\Hydrator\HydrationInterface;
 use Zend\Validator\ValidatorInterface;
@@ -50,87 +49,67 @@ class Transformer implements TransformerInterface
     }
     
     /**
-     * @param object $input
-     * @param object $output
-     * @return object
-     * @throws \Abacaphiliac\Zend\Transformer\Exception\ExceptionInterface
+     * @param mixed $input
+     * @param mixed|string $output
+     * @return mixed
+     * @throws \Abacaphiliac\Zend\Transformer\Exception\TransformationException
      */
     public function transform($input, $output)
     {
-        $this->validateOutputParameter($output);
+        try {
+            if (is_string($output)) {
+                Assertion::classExists($output);
+                $output = new $output;
+            }
+            
+            $this->validateObject($input, $this->inputValidator);
         
-        $this->validateObject($input, $this->inputValidator);
-    
-        $inputData = $this->extract($input);
-    
-        $outputData = $this->transformInputData($inputData);
-    
-        $output = $this->hydrate($outputData, $output);
-    
-        $this->validateObject($output, $this->outputValidator);
+            $inputData = $this->extract($input);
+        
+            $outputData = $this->transformInputData($inputData);
+        
+            $output = $this->hydrate($outputData, $output);
+        
+            $this->validateObject($output, $this->outputValidator);
+        } catch (AssertionFailedException $e) {
+            throw new TransformationException('Transformation failed.', 0, $e);
+        } catch (\Exception $e) {
+            throw new TransformationException('Transformation failed.', 0, $e);
+        }
         
         return $output;
     }
     
     /**
-     * @param object|string $output
-     * @return bool
-     * @throws \Abacaphiliac\Zend\Transformer\Exception\ValidationException
-     */
-    private function validateOutputParameter($output)
-    {
-        if (is_object($output)) {
-            return true;
-        }
-        
-        if (!is_string($output)) {
-            throw new ValidationException('Output must be an object or a class name.', 0); // TODO Describe input.
-        }
-    
-        if (!class_exists($output)) {
-            throw new ValidationException('Output must be an object or a class name.', 0); // TODO Describe input.
-        }
-        
-        return true;
-    }
-    
-    /**
-     * @param object $object
+     * @param mixed $object
      * @param ValidatorInterface $validator
      * @return bool
-     * @throws \Abacaphiliac\Zend\Transformer\Exception\ValidationException
+     * @throws \Zend\Validator\Exception\RuntimeException
+     * @throws AssertionFailedException
      */
     private function validateObject($object, ValidatorInterface $validator)
     {
-        if (!is_object($object)) {
-            throw new ValidationException('Transformation input failed validation.', 0); // TODO Describe input.
-        }
+        Assertion::isObject($object);
     
-        try {
-            $isInputValid = $validator->isValid($object);
-        } catch (\Exception $e) {
-            throw new ValidationException('Validation failed due to an exception.', 0, $e); // TODO Describe input.
-        }
+        $isValid = $validator->isValid($object);
     
-        if (!$isInputValid) {
-            throw new ValidationException('Validation failed: ' . json_encode($validator->getMessages(), 0));
-        }
+        Assertion::true($isValid, 'Validation failed: ' . json_encode($validator->getMessages()));
         
         return true;
     }
     
     /**
-     * @param object $object
+     * @param mixed $object
      * @return mixed[]
-     * @throws \Abacaphiliac\Zend\Transformer\Exception\ExtractionException
+     * @throws AssertionFailedException
      */
     private function extract($object)
     {
-        try {
-            $data = $this->extractor->extract($object);
-        } catch (\Exception $e) {
-            throw new ExtractionException('Extraction of input data failed.', 0, $e);
-        }
+        Assertion::isObject($object);
+        
+        $data = $this->extractor->extract($object);
+        
+        Assertion::isArray($data);
         
         return $data;
     }
@@ -138,37 +117,31 @@ class Transformer implements TransformerInterface
     /**
      * @param mixed[] $input
      * @return mixed[]
-     * @throws \Abacaphiliac\Zend\Transformer\Exception\TransformationException
+     * @throws AssertionFailedException
      */
-    private function transformInputData($input)
+    private function transformInputData(array $input)
     {
-        try {
-            $output = call_user_func($this->transformer, $input);
-        } catch (\Exception $e) {
-            throw new TransformationException('Transformation of input data failed.', 0, $e);
-        }
+        $output = call_user_func($this->transformer, $input);
         
-        if (!is_array($output)) {
-            throw new TransformationException('Transformation result must be an array.', 0); // TODO Describe.
-        }
+        Assertion::isArray($output);
         
         return $output;
     }
     
     /**
      * @param mixed[] $data
-     * @param object $object
-     * @return object
-     * @throws \Abacaphiliac\Zend\Transformer\Exception\HydrationException
+     * @param mixed|string $object
+     * @return mixed
+     * @throws AssertionFailedException
      */
     private function hydrate(array $data, $object)
     {
-        try {
-            $object = $this->hydrator->hydrate($data, $object);
-        } catch (\Exception $e) {
-            throw new HydrationException('Extraction of input data failed.', 0, $e);
-        }
+        Assertion::isObject($object);
         
-        return $object;
+        $output = $this->hydrator->hydrate($data, $object);
+        
+        Assertion::isObject($output);
+        
+        return $output;
     }
 }
