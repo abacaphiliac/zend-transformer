@@ -5,16 +5,13 @@ namespace Abacaphiliac\Zend\Transformer\Factory;
 use Abacaphiliac\Zend\Transformer\Config\TransformerConfig;
 use Abacaphiliac\Zend\Transformer\Transformer;
 use Assert\Assertion;
-use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
 use Zend\Hydrator\ClassMethods;
 use Zend\Hydrator\ExtractionInterface;
 use Zend\Hydrator\HydrationInterface;
 use Zend\Hydrator\HydratorPluginManager;
+use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\Exception\ServiceNotCreatedException;
-use Zend\ServiceManager\Exception\ServiceNotFoundException;
-use Zend\ServiceManager\Factory\AbstractFactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Validator\IsInstanceOf;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
@@ -30,31 +27,34 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     /**
      * Can the factory create an instance for the service?
      *
-     * @param  ContainerInterface $container
-     * @param  string $requestedName
+     * @param ServiceLocatorInterface $container
+     * @param string $name
+     * @param string $requestedName
      * @return bool
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      */
-    public function canCreate(ContainerInterface $container, $requestedName)
+    public function canCreateServiceWithName(ServiceLocatorInterface $container, $name, $requestedName)
     {
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
+        }
+        
         return is_array($this->getTransformerConfig($container, $requestedName));
     }
     
     /**
      * Create an object
      *
-     * @param  ContainerInterface $container
-     * @param  string $requestedName
-     * @param  null|array $options
+     * @param ServiceLocatorInterface $container
+     * @param string $name
+     * @param string $requestedName
      * @return Transformer
      * @throws \Zend\Validator\Exception\InvalidArgumentException
-     * @throws \Interop\Container\Exception\NotFoundException
      * @throws \Assert\AssertionFailedException
-     * @throws ServiceNotFoundException if unable to resolve the service.
-     * @throws ServiceNotCreatedException if an exception is raised when creating a service.
-     * @throws ContainerException if any other error occurs
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
+     * @internal param array|null $options
      */
-    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    public function createServiceWithName(ServiceLocatorInterface $container, $name, $requestedName)
     {
         if ($container instanceof AbstractPluginManager) {
             $container = $container->getServiceLocator();
@@ -78,12 +78,12 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     }
     
     /**
-     * @param ContainerInterface $container
+     * @param ServiceLocatorInterface $container
      * @param string $requestedName
      * @return mixed[]
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      */
-    private function getTransformerConfig(ContainerInterface $container, $requestedName)
+    private function getTransformerConfig(ServiceLocatorInterface $container, $requestedName)
     {
         $applicationConfig = $container->get('config');
     
@@ -91,17 +91,16 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     }
     
     /**
-     * @param ContainerInterface $container
+     * @param ServiceLocatorInterface $container
      * @param string $service
      * @param string $validateIsInstanceOf
      * @return ValidatorInterface
-     * @throws \Interop\Container\Exception\NotFoundException
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      * @throws \Assert\AssertionFailedException
      * @throws \Zend\Validator\Exception\InvalidArgumentException
      * @internal param TransformerConfig $config
      */
-    private function getValidator(ContainerInterface $container, $service, $validateIsInstanceOf = null)
+    private function getValidator(ServiceLocatorInterface $container, $service, $validateIsInstanceOf = null)
     {
         if ($service instanceof ValidatorInterface) {
             return $service;
@@ -125,14 +124,13 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     }
     
     /**
-     * @param ContainerInterface $container
+     * @param ServiceLocatorInterface $container
      * @param string $service
      * @return ExtractionInterface
-     * @throws \Interop\Container\Exception\NotFoundException
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      * @throws \Assert\AssertionFailedException
      */
-    private function getExtractor(ContainerInterface $container, $service)
+    private function getExtractor(ServiceLocatorInterface $container, $service)
     {
         if ($service instanceof ExtractionInterface) {
             return $service;
@@ -150,14 +148,13 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     }
     
     /**
-     * @param ContainerInterface $container
+     * @param ServiceLocatorInterface $container
      * @param string $service
      * @return HydrationInterface
-     * @throws \Interop\Container\Exception\NotFoundException
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      * @throws \Assert\AssertionFailedException
      */
-    private function getHydrator(ContainerInterface $container, $service)
+    private function getHydrator(ServiceLocatorInterface $container, $service)
     {
         if ($service instanceof HydrationInterface) {
             return $service;
@@ -175,29 +172,31 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     }
     
     /**
-     * @param ContainerInterface $container
+     * @param ServiceLocatorInterface $container
      * @param string $pluginManagerName
      * @param string $service
      * @return Object
-     * @throws \Interop\Container\Exception\NotFoundException
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      * @throws \Assert\AssertionFailedException
      */
-    private function getService(ContainerInterface $container, $service, $pluginManagerName)
+    private function getService(ServiceLocatorInterface $container, $service, $pluginManagerName)
     {
         $plugins = null;
         
         if ($container->has($pluginManagerName)) {
             // Get the named plugin-manager from parent container.
             $plugins = $container->get($pluginManagerName);
-            Assertion::isInstanceOf($plugins, ContainerInterface::class);
+            Assertion::isInstanceOf($plugins, AbstractPluginManager::class);
         } else if (isset(self::$pluginManagers[$pluginManagerName])) {
             // Create a new plugin-manager.
-            $plugins = new self::$pluginManagers[$pluginManagerName]($container);
-            Assertion::isInstanceOf($plugins, ContainerInterface::class);
+            $plugins = new self::$pluginManagers[$pluginManagerName];
+            Assertion::isInstanceOf($plugins, AbstractPluginManager::class);
+            
+            /** @var AbstractPluginManager $plugins */
+            $plugins->setServiceLocator($container);
         }
         
-        if ($plugins instanceof ContainerInterface && $plugins->has($service)) {
+        if ($plugins instanceof ServiceLocatorInterface && $plugins->has($service)) {
             // Get the service/plugin from the plugin-manager.
             return $plugins->get($service);
         }
@@ -207,12 +206,12 @@ class AbstractTransformerFactory implements AbstractFactoryInterface
     }
     
     /**
-     * @param ContainerInterface $container
+     * @param ServiceLocatorInterface $container
      * @param TransformerConfig $config
      * @return callable
-     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      */
-    private function getTransformer(ContainerInterface $container, TransformerConfig $config)
+    private function getTransformer(ServiceLocatorInterface $container, TransformerConfig $config)
     {
         $transformer = $config->getTransformer();
         if (is_callable($transformer)) {

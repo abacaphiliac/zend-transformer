@@ -15,12 +15,17 @@ use Zend\Validator\ValidatorChain;
  */
 class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var AbstractTransformerFactory */
+    private $sut;
+    
     /** @var ServiceManager */
     private $container;
     
     protected function setUp()
     {
         $this->container = new ServiceManager();
+        
+        $this->sut = $sut = new AbstractTransformerFactory();
     }
     
     public function testTransformFromSimpleSpec()
@@ -39,11 +44,10 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
         ]);
+    
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
-        
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -74,10 +78,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -103,10 +106,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -119,7 +121,7 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
                 'transformers' => [
                     'FooBarToFizBuz' => [
                         'inputClass' => FooBar::class,
-                        'extractor' => ClassMethods::class,
+                        'extractor' => 'ClassMethods',
                         'keyMap' => [
                             'foo' => 'fiz',
                             'bar' => 'buz',
@@ -130,10 +132,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -162,10 +163,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -187,17 +187,16 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
                             'foo' => 'fiz',
                             'bar' => 'buz',
                         ],
-                        'hydrator' => ClassMethods::class,
+                        'hydrator' => 'ClassMethods',
                         'outputClass' => FizBuz::class,
                     ],
                 ],
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -226,10 +225,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -259,10 +257,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -294,10 +291,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -326,10 +322,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
@@ -358,10 +353,9 @@ class AbstractTransformerFactoryTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
         
-        $sut = new AbstractTransformerFactory();
-        self::assertTrue($sut->canCreate($this->container, 'FooBarToFizBuz'));
+        self::assertTrue($this->sut->canCreateServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz'));
         
-        $transformer = $sut($this->container, 'FooBarToFizBuz');
+        $transformer = $this->sut->createServiceWithName($this->container, 'FooBarToFizBuz', 'FooBarToFizBuz');
         self::assertInstanceOf(TransformerInterface::class, $transformer);
         
         $result = $transformer->transform(new FooBar('Alice', 'Bob'), new FizBuz());
