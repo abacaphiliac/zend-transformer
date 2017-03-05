@@ -12,6 +12,4 @@ before_script:
   - composer update --no-interaction $COMPOSER_OPTS
 script:
   - vendor/bin/phing
-after_script:
-  - wget https://scrutinizer-ci.com/ocular.phar
-  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+  - if [[ $TRAVIS_PHP_VERSION == '5.6' ]]; then vendor/bin/humbug -b; fi
