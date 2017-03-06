@@ -2,7 +2,7 @@
     "name": "abacaphiliac/zend-transformer",
     "description": "Extract and Hydrate, plus secret sauce.",
     "minimum-stability": "stable",
-    "license": "proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "Timothy Younger",
